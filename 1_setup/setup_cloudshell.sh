@@ -5,7 +5,6 @@ mkdir -p $HOME/bin/
 
 # install bash-completion
 sudo dnf install -y bash-completion
-source /etc/profile.d/bash_completion.sh 
 
 # install eksctl
 ## https://eksctl.io/installation/
@@ -29,6 +28,7 @@ mv ./kubectl $HOME/bin/kubectl
 
 # export path
 echo 'export PATH=$PATH:$HOME/bin' >> $HOME/.bashrc
+echo 'source /etc/profile.d/bash_completion.sh' >> $HOME/.bashrc
 echo 'source <(eksctl completion bash)' >> $HOME/.bashrc
 echo 'source <(kubectl completion bash)' >> $HOME/.bashrc
 source ~/.bashrc
