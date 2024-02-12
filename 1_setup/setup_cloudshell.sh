@@ -29,6 +29,7 @@ mv ./kubectl $HOME/bin/kubectl
 
 # export path
 echo 'export PATH=$PATH:$HOME/bin' >> $HOME/.bashrc
+echo 'source <(eksctl completion bash)' >> $HOME/.bashrc
 echo 'source <(kubectl completion bash)' >> $HOME/.bashrc
 source ~/.bashrc
 
