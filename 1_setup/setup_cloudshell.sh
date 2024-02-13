@@ -30,7 +30,9 @@ mv ./kubectl $HOME/bin/kubectl
 ## https://helm.sh/ja/docs/intro/install/
 curl -fsSL -o helm.tar.gz "https://get.helm.sh/helm-v3.14.0-linux-amd64.tar.gz"
 tar -zxvf helm.tar.gz
-mv helm $HOME/bin/
+mv linux-amd64/helm $HOME/bin/
+rm helm.tar.gz
+rm -r linux-amd64
 
 # export path
 echo 'export PATH=$PATH:$HOME/bin' >> $HOME/.bashrc
