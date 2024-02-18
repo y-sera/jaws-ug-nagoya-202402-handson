@@ -7,7 +7,7 @@ mkdir -p $HOME/bin/
 sudo dnf install -y bash-completion docker
 
 # install aws-iam-authenticator
-curl -fsSL -o $HOME/bin/aws-iam-authenticator
+curl -fsSL "https://github.com/kubernetes-sigs/aws-iam-authenticator/releases/download/v0.6.14/aws-iam-authenticator_0.6.14_linux_amd64"  -o $HOME/bin/aws-iam-authenticator
 chmod +x $HOME/bin/aws-iam-authenticator
 
 # install eksctl
