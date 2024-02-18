@@ -3,8 +3,8 @@
 # make installation directry
 mkdir -p $HOME/bin/
 
-# install bash-completion
-sudo dnf install -y bash-completion
+# install bash-completion & docker
+sudo dnf install -y bash-completion docker
 
 # install aws-iam-authenticator
 curl -fsSL -o $HOME/bin/aws-iam-authenticator
