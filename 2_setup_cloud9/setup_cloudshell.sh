@@ -6,6 +6,10 @@ mkdir -p $HOME/bin/
 # install bash-completion
 sudo dnf install -y bash-completion
 
+# install aws-iam-authenticator
+curl -fsSL -o $HOME/bin/aws-iam-authenticator
+chmod +x $HOME/bin/aws-iam-authenticator
+
 # install eksctl
 ## https://eksctl.io/installation/
 # for ARM systems, set ARCH to: `arm64`, `armv6` or `armv7`
