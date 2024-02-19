@@ -50,8 +50,6 @@ cd jaws-ug-nagoya-202402-handson/1_create_cloud9/
 
 ## 2. Cloud9環境設定
 ＜概要図＞
-TODO:
-- 諸々必要なツールインストール
 ### 2.1 ATMC設定
 1. Cloud9の画面を開く.
 2. `eks-handson`環境を選択し, cloud9で開く, をクリック.
