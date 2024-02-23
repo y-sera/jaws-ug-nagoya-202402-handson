@@ -44,5 +44,12 @@ echo 'source /etc/profile.d/bash_completion.sh' >> $HOME/.bashrc
 echo 'source <(eksctl completion bash)' >> $HOME/.bashrc
 echo 'source <(kubectl completion bash)' >> $HOME/.bashrc
 echo 'source <(helm completion bash)' >> $HOME/.bashrc
-source ~/.bashrc
+echo 'alias k="kubectl"' >> $HOME/.bashrc
+echo 'complete -o default -F __start_kubectl k' >> $HOME/.bashrc
+
+echo ''
+echo '--------------------------'
+echo 'set_up complete!'
+echo 'you can completion eksctl, kubectl,helm after execute this command.'
+echo 'source ~/.bashrc'
 
