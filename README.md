@@ -9,13 +9,14 @@ https://aws.amazon.com/jp/blogs/news/cloud-native-ci-cd-with-tekton-and-argocd-o
 
 ## 手順概要
 以下のステップで行います.
+0. (準備)IAMユーザの作成
 1. cloud9構築
 2. cloud9環境設定
 3. EKSクラスター構築
-5. GitOps環境構築
-6. ArgoCD構築
-7. リポジトリ更新/稼働確認
-8. 後片付け
+4. GitOps環境構築
+5. デモ用アプリの更新 
+6. リポジトリ更新/稼働確認
+7. 後片付け
 
 
 
@@ -139,16 +140,20 @@ cd ~/environment/aws-pipeline-demo-with-tekton/
 - ChartMuseum
 - デモ用アプリ
 
-## 6. デモアプリ更新
+実行が完了すると, 
+
+## 5. デモアプリ更新
 TODO
 - 以下リンクに従う
 
+```
+```
 
-## 7. リポジトリ更新/稼働確認
+## 6. リポジトリ更新/稼働確認
 
 
-## 8. 後片付け
-### 8.1 GitOps環境削除
+## 7. 後片付け
+### 7.1 GitOps環境削除
 まず, GitOpsに使用した, EKSの周りにある各種リソースを削除する.  
 今回のリソースはほぼ全てCloudFormationにて作成されているため,  
 消されているか不安な場合はスタックを確認すると良い.
@@ -158,19 +163,22 @@ TODO
 cd ~/environment/aws-pipeline-demo-with-tekton/
 ./uninstall.sh
 ```
-### 8.2 EKSクラスター削除
-eksctlコマンドにて削除を実施する
+### 7.2 EKSクラスター削除
+eksctlコマンドにてEKSクラスターの削除を実施する
 ```
 cd ~/environment/aws-pipeline-demo-with-tekton/
 eksctl delete cluster --name eks-handson-cluster
 ```
 
 ### 8.3 Cloud9削除
-eksクラスターの削除が完了した後に実施する.
+eksクラスターの削除が完了した後に実施する.  
 cloud shellを開き, 以下コマンドを実施する.
 ```
 aws cloudformation delete-stack --stack-name eks-handson-cloud9
 ```
 
 ### 8.4 IAMユーザ削除
-
+1. 一旦AWSアカウントをログアウトし, 普段利用するユーザにてログインし直す.
+2. IAMの画面からユーザーを検索し, `eks-handson-user`を削除します
+  
+以上でハンズオンは完了です. お疲れ様でした.
