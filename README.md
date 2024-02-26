@@ -12,8 +12,7 @@ https://aws.amazon.com/jp/blogs/news/cloud-native-ci-cd-with-tekton-and-argocd-o
 1. cloud9構築
 2. cloud9環境設定
 3. EKSクラスター構築
-4. codeCommitリポジトリ構築
-5. tektonパイプライン構築
+5. GitOps環境構築
 6. ArgoCD構築
 7. リポジトリ更新/稼働確認
 8. 後片付け
@@ -89,17 +88,17 @@ aws sts get-caller-identity
 - helm: マニフェスト管理ツール
 
 
-1. スクリプトをダウンロードする.
+1. 今回のハンズオン用のリポジトリをダウンロードする.
 ```
-cd ~/environment/ && git clone https://github.com/y-sera/jaws-ug-nagoya-202402-handson
+cd ~/environment/ && git clone https://github.com/y-sera/aws-pipeline-demo-with-tekton.git
 ```
 
 2. スクリプト実行
 ```
-cd jaws-ug-nagoya-202402-handon/2_setup_cloud9/
+cd ~/environment/aws-pipeline-demo-with-tekton/
 ./setup_cloud9.sh
 ```
-3. パスの設定の読み込み
+3. パス, エイリアス設定の読み込み
 ```
 source ~/.bashrc
 ```
@@ -108,22 +107,70 @@ source ~/.bashrc
 ＜概要図＞
 eksctlコマンドにて, eksクラスターを構築する.(15分ほど待つ.)
 ```
-eksctl create cluster --name handson-cluster
+cd ~/environment/aws-pipeline-demo-with-tekton/
+eksctl create cluster --config-file eks-cluster-template.yaml
 ```
+今回はあらかじめyamlファイルに設定を記載しておいたが, コマンドの引数として渡すこともできる.
+(今回のハンズオンでは, 後の構築段階でクラスター名が異なると上手くいかない箇所があるため, 
+名前が一意に定まるように設定ファイルを利用)
 
 
-## 4. CodeCommitリポジトリ構築
+## 4. GitOps環境構築
+スクリプトにて, GitOps環境を構築する.
+```
+cd ~/environment/aws-pipeline-demo-with-tekton/
+./install.sh
+```
+構築するものは以下
+- OIDCプロバイダー
+- IAMサービスアカウント(EBSコントローラー用)
+- IAMサービスアカウント(ロードバランサーコントローラ用)
+- EBSコントローラー
+- ロードバランサーコントローラー
+- CodeCommitリポジトリ(デモ用アプリソース管理)
+- CodeCommitリポジトリ(デモ用アプリマニフェスト管理)
+- CodeCommit(ソース管理)トリガ用lambda
+- 各種保存用S3
+- その他IAMサービスアカウント
+- Tekton pipeline
+- Tekton Trigger
+- Tekton Dashboard
+- ArgoCD
+- ChartMuseum
+- デモ用アプリ
 
+## 6. デモアプリ更新
+TODO
+- 以下リンクに従う
 
-## 5. tektonパイプライン構築
-
-## 6. ArgoCD構築
 
 ## 7. リポジトリ更新/稼働確認
 
+
 ## 8. 後片付け
-TODO: 
-- EKSクラスター削除
-- CodeCommitリポジトリ削除
-- cloud9削除
+### 8.1 GitOps環境削除
+まず, GitOpsに使用した, EKSの周りにある各種リソースを削除する.  
+今回のリソースはほぼ全てCloudFormationにて作成されているため,  
+消されているか不安な場合はスタックを確認すると良い.
+  
+以下スクリプトを実行する.
+```
+cd ~/environment/aws-pipeline-demo-with-tekton/
+./uninstall.sh
+```
+### 8.2 EKSクラスター削除
+eksctlコマンドにて削除を実施する
+```
+cd ~/environment/aws-pipeline-demo-with-tekton/
+eksctl delete cluster --name eks-handson-cluster
+```
+
+### 8.3 Cloud9削除
+eksクラスターの削除が完了した後に実施する.
+cloud shellを開き, 以下コマンドを実施する.
+```
+aws cloudformation delete-stack --stack-name eks-handson-cloud9
+```
+
+### 8.4 IAMユーザ削除
 

@@ -1,7 +1,7 @@
 #!/bin/bash
-STACKNAME="eks-handson"
+STACKNAME="eks-handson-cloud9"
 CLOUD9_OWNER_ARN=$(aws sts get-caller-identity --query 'Arn' --output text)
-TAG_NAME="eks-handson"
+TAG_NAME="eks-handson-cloud9"
 
 aws cloudformation deploy --template-file cloud9_template.yaml \
   --stack-name "${STACKNAME}" \
