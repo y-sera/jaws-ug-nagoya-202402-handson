@@ -140,16 +140,76 @@ cd ~/environment/aws-pipeline-demo-with-tekton/
 - ChartMuseum
 - デモ用アプリ
 
-実行が完了すると, 
+実行完了時の以下の出力結果を保存しておく.
+```
+[INFO] $(date +"%T") Display output values...
+[INFO] DEMO APP => http://XXXXXXX
+[INFO] TEKTON DASHBOARD => http://YYYYYYYYY"
+[INFO] ARGOCD => http://ZZZZZZZZZZZ"
+[INFO] SOURCE REPO => https://git-codecommit.ap-northeast-1.amazonaws.com/v1/repos/tekton-demo-app-build"
+[INFO] GIT USERNAME => eks-handson-userxxxxxx"
+[INFO] GIT PASWORD => xxxxxxxxxxxx"
+[INFO] ARGOCD USERNAME => admin"
+[INFO] ARGOCD PASSWORD => XXXXXXXXXXXXX"
+```
 
 ## 5. デモアプリ更新
-TODO
-- 以下リンクに従う
+※以下手順5~6は, 以下リンクとほぼ同じ内容です.(git cloneコマンドのみ差異あり)
+[Tekton と Argo CD を使用した AWS でのクラウドネイティブな CI/CD](https://aws.amazon.com/jp/blogs/news/cloud-native-ci-cd-with-tekton-and-argocd-on-aws/)
 
+### 5.1 現在のデモアプリの状態を確認する
+手順4の最後の結果: `DEMO APP =>`の行に記載されたURLにブラウザからアクセスする.
+Tektonのアイコンと, `Tekton Demo@AWS`の文字が__黒__で表示されています.
+
+### 5.2 アプリケーションに簡単な変更を加える
+1. 以下コマンドにて, アプリケーション用リポジトリをcloud9へクローンする.
 ```
+cd ~/environment
+git clone codecommit://tekton-demo-app-build
+cd tekton-demo-app-build
 ```
+
+2. リポジトリのクローンに成功したら, `src/main/resources/templates`にあるgreeting.htmlを開き, 13行目のh1タグをコメントアウトします.  
+次に, インラインCSSグラデーションを使用するh1タグを追加します(14行目以降のコメントアウトを外す).  
+変更内容を保存する.
 
 ## 6. リポジトリ更新/稼働確認
+### 6.1 tekton dashboardを開く
+CodeCommitリポジトリを更新する前に, パイプラインのダッシュボードを開いておく.
+手順4の最後の出力の, `[INFO] TEKTON DASHBOARD => http://YYYYYYYYY`に記載されたリンクにアクセスする.
+
+### 6.2 リポジトリの更新
+webアプリの更新内容をCodeCommitへpushする.
+```
+git commit -am "Change text color to match color of Tekton logo"
+git push
+```
+
+### 6.3 パイプラインで現在の状況を確認する
+6.1で開いたtekton dashbaoradの`TaskRuns`タブを開き, パイプラインの実行状況を確認する.  
+しばらくすると, ビルドが完了し, 緑色のインジケーターが表示される.
+
+### 6.4 AWS CodeArtifactでJARアーティファクトの新バージョンを確認する.
+AWS CodeArtifactを開く. tekton-demo-repositoryリポジトリ内のcom.amazon:tekton-demoパッケージを選択する. 最近のGitコミットハッシュを持つパッケージの新しいバージョンが表示されている子とが確認できる.
+(Gitコミットのハッシュは, 以下コマンドにて確認できる.
+```
+git show --format=%H --no-patch
+```
+)
+
+### 6.5 ECRで新しいコンテナイメージのバージョンを確認する.
+Amazon ECR> プライベートリポジトリ> tekton-demo-appを開く.
+Gitコミットハッシュを識別子として含む新しいイメージタグが表示されていることを確認する.
+
+### 6.6 アプリケーションpodの更新を確認する.
+以下コマンドを実行する.
+```
+kubectl get pod -n apps --watch
+```
+しばらく待つと, ArgoCDがリポジトリの変化を検知し, podが再作成される様子が確認できる.
+
+### 6.7 デモ用アプリケーションの状態を確認する
+手順5.1で開いたデモ用アプリを更新し, 文字の色が黒からTektonのロゴの色に変化していることを確認する.
 
 
 ## 7. 後片付け
