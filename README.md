@@ -18,16 +18,31 @@ https://aws.amazon.com/jp/blogs/news/cloud-native-ci-cd-with-tekton-and-argocd-o
 6. リポジトリ更新/稼働確認
 7. 後片付け
 
+> [!IMPORTANT]
+> 今回のハンズオンは, 以下2つを前提に構成しています. 
+> これらを満たしていないとスクリプト等が上手く機能しないため注意してください.
+> - 東京リージョンに構築すること
+> - IAMユーザ: eks-handson-userを利用すること
 
-
-## 0. (準備)IAMユーザの作成
-1. IAM画面から, IAMユーザを作成する.  
-  ユーザー名: `eks-handson-user`
+## 0. (準備)IAMユーザとアクセスキーの作成
+### 0.1 IAMユーザの作成
+1. IAM画面へ移動し, 画面左側のユーザータブを開く.
+2. 画面右側のユーザーの作成ボタンをクリック.
+3. ユーザー名を入力して次へ   
+  ユーザー名: `eks-handson-user`  
+  "AWSマネジメントコンソールへのユーザアクセスを提供する" オプションはチェックを外す.
+4. 'ポリシーを直接アタッチする'を選択し, 以下のポリシーを付与して次へをクリック.  
   付与するポリシー: `AdministoratorAccess`
+5. 確認画面で内容を確認し, ユーザーの作成をクリック.
 
-2. アクセスキーを作成する.
+### 0.2 アクセスキーの作成
+1. IAM > ユーザー > eks-handson-userをクリック.
+2. セキュリティ認証情報のタブ > アクセスキー > アクセスキーを作成 をクリック.
+3. "主要なベストプラクティスと代替案にアクセスする" にて, "コマンドラインインターフェイス(CLI)", "上記のレコメンデーションを理解し, アクセスキーを作成する"をチェックして次へ
+4. 説明タグは任意の文字を入力し(空でも良い), アクセスキーを作成をクリック
+5. アクセスキー, シークレットアクセスキーをメモしておく.
 
-3. 一旦ログアウトし, 作成したIAMユーザでログインし直す.
+
 
 ### 1. Cloud9構築
 ＜概要図＞
@@ -43,18 +58,18 @@ git clone https://github.com/y-sera/jaws-ug-nagoya-202402-handson.git
 ```
 cd jaws-ug-nagoya-202402-handson/1_create_cloud9/
 ```
-4. スクリプトを実行し, cloudformation経由でcloud9(と, そのために必要なVPC等)を構築する.
+4. スクリプトを実行し, cloudformation経由でcloud9及びVPC等を構築する.
 ```
 ./createCloud9.sh
 ```
 
 ## 2. Cloud9環境設定
 ＜概要図＞
-### 2.1 ATMC設定
+### 2.1 Cloud9設定(AWS Managed Temporary Credentials設定)
 1. Cloud9の画面を開く.
 2. `eks-handson`環境を選択し, cloud9で開く, をクリック.
 3. cloud9の画面にて, 画面左上 '雲マーク'-> 'Prefences'をクリックする.
-4. 画面左側の'AWS Settings'をクリックし, 画面下部'Credentials'の項目の'AWS managed temporary credentials'のチェックをオフ(赤色)にする.
+4. 画面左側の'AWS Settings'をクリックし, 画面下部'Credentials'の項目の'AWS Managed Temporary Credentials'のチェックをオフ(赤色)にする.
 
 ### 2.2 AWS CLIの設定
 1. ターミナルにてaws configureコマンドを実行し, アクセスキー, リージョン情報を登録する.
@@ -191,11 +206,11 @@ git push
 
 ### 6.4 AWS CodeArtifactでJARアーティファクトの新バージョンを確認する.
 AWS CodeArtifactを開く. tekton-demo-repositoryリポジトリ内のcom.amazon:tekton-demoパッケージを選択する. 最近のGitコミットハッシュを持つパッケージの新しいバージョンが表示されている子とが確認できる.
-(Gitコミットのハッシュは, 以下コマンドにて確認できる.
+Gitコミットのハッシュは, 以下コマンドにて確認できる.
 ```
 git show --format=%H --no-patch
 ```
-)
+
 
 ### 6.5 ECRで新しいコンテナイメージのバージョンを確認する.
 Amazon ECR> プライベートリポジトリ> tekton-demo-appを開く.
@@ -223,6 +238,21 @@ kubectl get pod -n apps --watch
 cd ~/environment/aws-pipeline-demo-with-tekton/
 ./uninstall.sh
 ```
+> [!NOTE]
+> 削除するもの
+> - ALB３つ, NLB1つ(Kubernetes上ではService(type: LoadBalancer) or Ingressリソース)
+> - セキュリティグループ
+> - ECR
+> - CloudFormationスタック(TektonDemoInfra)
+> - CloudFormationスタック(TektonDemoBuckets)
+> - CodeCommit用認証情報
+> - CloudWatch ロググループ(/aws/lambda/TektonPipelineDemoWebhook)
+>  
+> これらが消せない場合は以下を試してください
+> - コケたところまでのコマンド(export文を除く)をコメントアウト.
+> - TektonDemoInfraスタックが消せない場合: スタック上で削除中になっているセキュリティグループに関連したリソースを手動削除してからスタック削除を実行. 
+> - TektonDemoBucketsスタックが消せない場合: tektondemobuckets で始まる２つのバケットを空にしてからスタック削除を実行.
+
 ### 7.2 EKSクラスター削除
 eksctlコマンドにてEKSクラスターの削除を実施する
 ```
@@ -237,8 +267,7 @@ cloud shellを開き, 以下コマンドを実施する.
 aws cloudformation delete-stack --stack-name eks-handson-cloud9
 ```
 
-### 8.4 IAMユーザ削除
-1. 一旦AWSアカウントをログアウトし, 普段利用するユーザにてログインし直す.
-2. IAMの画面からユーザーを検索し, `eks-handson-user`を削除します
+### 8.4 IAMユーザー削除
+1. IAM > ユーザー > eks-handson-userをチェックし, 画面右上の削除ボタンよりIAMユーザを削除する.
   
 以上でハンズオンは完了です. お疲れ様でした.
